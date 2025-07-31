@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sentiment Analysis of Text Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            padding: 40px;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            resize: none;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        button {
+            display: block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 6px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 5px solid #28a745;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left: 5px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Sentiment Analysis of Text Reviews</h1>
+
+    <form id="sentimentForm">
+        <label for="reviewText">Enter the review text below:</label>
+        <textarea id="reviewText" name="review" placeholder="This movie was fantastic and the acting was superb! I would highly recommend it to everyone."></textarea>
+        <button type="submit">Analyze Sentiment</button>
+    </form>
+
+    <div id="result" class="result" style="display: none;"></div>
+
+    <script>
+        const form = document.getElementById('sentimentForm');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const review = document.getElementById('reviewText').value.trim();
+
+            if (!review) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result warning';
+                resultDiv.innerHTML = '⚠️ Please enter a review to analyze.';
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = '⏳ Analyzing...';
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ review })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const sentiment = data.sentiment;
+
+                    if (sentiment === 'Positive') {
+                        resultDiv.className = 'result success';
+                        resultDiv.innerHTML = '✅ Prediction: Positive 👍';
+                    } else if (sentiment === 'Negative') {
+                        resultDiv.className = 'result error';
+                        resultDiv.innerHTML = '❌ Prediction: Negative 👎';
+                    } else {
+                        resultDiv.className = 'result warning';
+                        resultDiv.innerHTML = '⚠️ Could not determine the sentiment. Please try another review.';
+                    }
+                } else {
+                    const errorData = await response.json();
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `🚫 API Error: ${errorData.error || 'Unknown error occurred.'}`;
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `⚠️ Connection Error: Unable to connect to API.`;
+            }
+        });
+    </script>
+
+</body>
+</html>
