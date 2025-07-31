@@ -63,7 +63,6 @@ The application is designed with a decoupled client-server architecture:
     - On submission, it makes an HTTP POST request to the Flask API.
     - It receives the JSON response and displays the result in a user-friendly, color-coded format.
 
-*(Optional but highly recommended: Create a simple diagram using a tool like diagrams.net or Excalidraw and embed the image here.)*
 
 ---
 
